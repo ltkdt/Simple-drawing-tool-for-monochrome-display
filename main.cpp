@@ -202,7 +202,7 @@ int main(void)
 
                 DrawText("Reset canvas", 315, 680, 25, BLACK);
                 DrawText("Invert color", 540, 680, 25, BLACK);
-                DrawText("Save to: bytearray.cpp (Or F2)", 775, 680, 25, BLACK);
+                DrawText("Save to: bitmap.cpp (Or F2)", 775, 680, 25, BLACK);
 
                 switch (CurrentDrawTool)
                 {
