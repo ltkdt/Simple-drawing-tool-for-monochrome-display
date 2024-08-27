@@ -10,6 +10,8 @@ For now you can:
  - Invert color
  - Save cpp code of your bitmap in bitmap.cpp. Copy it to your personal project and use it to display on your OLED screen
  
- Run build.bash to run the project.
+ Run `bash build.bash` to run the project.
+
+ Below is a demo screenshot:
 
 ![demo](./demo.png)
