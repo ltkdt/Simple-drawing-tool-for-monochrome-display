@@ -105,7 +105,7 @@ int main(void)
     previousMapClickedRect = {-1, -1};
 
     DrawTool CurrentDrawTool = PEN;
-    QuickDrawFeatures CurrentQuickDraw = DRAWRECT;
+    QuickDrawFeatures CurrentQuickDraw = DRAWLINE;
 
     InitWindow(screenWidth, screenHeight, "Simple program to create byte array for monochrome screen by ltkdt");
 
@@ -155,18 +155,23 @@ int main(void)
 
                             draw_h_line(previousMapClickedLine.x, position_map_x, position_map_y, matrix_map);
                         }
+                        else{
+                            draw_line(previousMapClickedLine.x, previousMapClickedLine.y, position_map_x, position_map_y, matrix_map);
+                        }
                     }
 
                     previousMapClickedLine = (Vector2Int){position_map_x, position_map_y};
+
+                break;
                 
                 case DRAWRECT:
                     if ( !(previousMapClickedRect.x == -1 && previousMapClickedRect.y == -1) ){
                         draw_rect(previousMapClickedRect.x, previousMapClickedRect.y, position_map_x, position_map_y, matrix_map);
-
+                        std::cout << "called here \n";
                     }
 
                     previousMapClickedRect = (Vector2Int){position_map_x, position_map_y};
-
+                break;
                 default:
                     break;
                 }
