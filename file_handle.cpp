@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "file_handle.h"
 #include <unordered_map>
+#include "file_handle.h"
 
 std::unordered_map<int, char> ToHexLetter = {
     {10, 'a'},

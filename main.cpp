@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include "file_handle.h"
+#include "logic_handle.h"
 
 #define X_RESOLUTION 128
 #define Y_RESOLUTION 64
@@ -21,6 +22,8 @@ Press F12 or click the save button to generate code to bitmap.cpp. Copy the code
 // There are only 2 draw tools for this basic program: pen or eraser
 typedef enum DrawTool { PEN, ERASER } DrawTool;
 
+typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT } QuickDrawFeatures;
+
 // Position of the starting point and the ending point of the canvas
 Vector2 BeginDrawCanvas = {40, 20};
 Vector2 EndDrawCanvas = {1320, 660};
@@ -33,6 +36,11 @@ Rectangle InvertColorButton {520, 675, 200, 30};
 Rectangle SaveButton {740, 675, 400, 30};
 
 int matrix_map[Y_RESOLUTION][X_RESOLUTION];  // Matrix : Arr[row][column]
+
+struct Vector2Int{
+    int x;
+    int y;
+} previousMapClickedLine, previousMapClickedRect;
 
 /*
 
@@ -88,12 +96,16 @@ void invert_matrix_map(){
 
 int main(void)
 {
-    reset_matrix_map();
+
     // Each pixel of the result bitmap is represented by a block of 10x10 on the canvas
-    const int screenWidth = 1360; // 1280 + 80. The draw canvas only takes up 1280 pixels in terms of width.
+    const int screenWidth = 1480; // 1280 + 80. The draw canvas only takes up 1280 pixels in terms of width.
     const int screenHeight = 720; // 640 + 80. The draw canvas only takes up 640 pixels in terms height
 
+    previousMapClickedLine = {-1, -1};
+    previousMapClickedRect = {-1, -1};
+
     DrawTool CurrentDrawTool = PEN;
+    QuickDrawFeatures CurrentQuickDraw = DRAWRECT;
 
     InitWindow(screenWidth, screenHeight, "Simple program to create byte array for monochrome screen by ltkdt");
 
@@ -105,19 +117,23 @@ int main(void)
 
         if (CheckCollisionPointRec(GetMousePosition(), (Rectangle){BeginDrawCanvas.x, BeginDrawCanvas.y, 1280, 640}) && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT) )){
                 Vector2 CurrentPosition = GetMousePosition();
+                
                 int mouse_x = CurrentPosition.x;
                 int mouse_y = CurrentPosition.y;
                 int position_map_x = GetPositionOfMap(mouse_x, BeginDrawCanvas.x);
                 int position_map_y = GetPositionOfMap(mouse_y, BeginDrawCanvas.y);
                 
                 // The line below is for debugging only
-                std::cout << position_map_x << " " << position_map_y << "\n";
+                // std::cout << position_map_x << " " << position_map_y << "\n";
 
                 switch (CurrentDrawTool)
                 {
                 case PEN:
                     // Using draw tool, blocks that you click on are white. (The default is black)
-                    matrix_map[position_map_y][position_map_x] = 1;
+                    //matrix_map[position_map_y][position_map_x] = 1;
+
+                    draw_with_pen_size(matrix_map, position_map_y, position_map_x, 1 );
+                   
                     break;
                 case ERASER:
                     // Using eraser tool, blocks that you click on are black, the same as the default color
@@ -126,6 +142,36 @@ int main(void)
                 default:
                     break;
                 }
+
+                switch (CurrentQuickDraw)
+                {
+                case DRAWLINE:
+                    if ( !(previousMapClickedLine.x == -1 && previousMapClickedLine.y == -1) ){
+                        if(previousMapClickedLine.x == position_map_x){
+
+                            draw_v_line(previousMapClickedLine.y, position_map_y, position_map_x, matrix_map);
+                        }
+                        if(previousMapClickedLine.y == position_map_y){
+
+                            draw_h_line(previousMapClickedLine.x, position_map_x, position_map_y, matrix_map);
+                        }
+                    }
+
+                    previousMapClickedLine = (Vector2Int){position_map_x, position_map_y};
+                
+                case DRAWRECT:
+                    if ( !(previousMapClickedRect.x == -1 && previousMapClickedRect.y == -1) ){
+                        draw_rect(previousMapClickedRect.x, previousMapClickedRect.y, position_map_x, position_map_y, matrix_map);
+
+                    }
+
+                    previousMapClickedRect = (Vector2Int){position_map_x, position_map_y};
+
+                default:
+                    break;
+                }
+
+
             }
 
         // Button function
