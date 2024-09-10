@@ -11,7 +11,7 @@ For now you can:
  - Invert color
  - Save cpp code of your bitmap in bitmap.cpp. Copy it to your personal project and use it to display on your OLED screen
 
-Run `bash build.bash` to run the project.
+Run `bash build.bash` to run the project. This repo assumes you know how to setup Raylib. If not, search for it since this library is very well-documented
 
 Below is a demo screenshot:
 

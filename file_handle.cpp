@@ -2,7 +2,65 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
+#include <sstream>
+#include <cmath>
+#include <array>
 #include "file_handle.h"
+
+typedef std::vector<std::pair<int, int>> coordinateList;
+
+std::unordered_map<char, int> HexLetterToInt = {
+    {'a', 10},
+    {'b', 11},
+    {'c', 12},
+    {'d', 13},
+    {'e', 14},
+    {'f', 15}
+};
+
+std::array<int, 4> DigitToByte(int num){
+    std::array <int,4> byte;
+    for(int j = 3; j>=0; j--){
+        int base = std::pow(2,j);
+        if(num >= base){
+            num -= base;
+        }
+        byte[3-j] = (num >0) ? 1 : 0; 
+    }
+    return byte;
+}
+
+coordinateList MapCoordinateFromFile(std::string filename){
+    coordinateList output;
+    std::string line;
+    std::ifstream FileHandle(filename);
+    int i;
+    char byte[4];
+    while(getline(FileHandle, line)){
+        /*
+        std::stringstream liness(line);
+        std::string value;
+        while(std::getline(liness, value, '\t')) {
+            std::cout << token << '\n';
+        }
+        */
+        if(line[0]== '\t'){
+            for(i=3;i <line.length(); i+= 6){
+                // if the char is a number
+                int digit = line[i] -'0' ;
+                if(digit < 0 or digit > 9){
+                    digit = HexLetterToInt[line[i]];
+                }
+                
+            }
+            std::cout << '\n';
+        }
+    }
+    FileHandle.close();
+    return output;
+}
 
 std::unordered_map<int, char> ToHexLetter = {
     {10, 'a'},
@@ -38,6 +96,8 @@ std::string readFile(){
 
     return fileContent;
 }
+
+
 
 /*
 
