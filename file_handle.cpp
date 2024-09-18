@@ -68,15 +68,15 @@ void MapCoordinateFromFile(std::string filename, int(&MatrixMap)[64][128]){
                 }
                 CurrentByte = DigitToHalfByte(digit);
 
-                int digit2 = line[i] -'0' ;
+                int digit2 = line[i+1] -'0' ;
                 if(digit2 < 0 or digit2 > 9){
-                    digit2 = HexLetterToInt[line[i]];
+                    digit2 = HexLetterToInt[line[i+1]];
                 }
                 CurrentByte2 = DigitToHalfByte(digit2);
 
                 ReadByteToMap(CurrentByte,row,column, MatrixMap);
                 ReadByteToMap(CurrentByte2,row,column+1, MatrixMap);
-                column++;
+                column += 2;
             }
             std::cout << row << " " << column << "\n";
         }
