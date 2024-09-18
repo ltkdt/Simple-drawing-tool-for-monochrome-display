@@ -109,12 +109,15 @@ std::string filename;
 
 int main(void)
 {
-    //MapCoordinateFromFile("bitmap.cpp");
-    std::array<int, 4> output = DigitToByte(1);
+    MapCoordinateFromFile("bitmap.cpp", matrix_map);
+    /*
+    std::array<int, 4> output = DigitToByte(15);
     for(int i =0; i<4; i++){
         std:: cout << output[i] << " ";
     }
     std::cout << '\n';
+    */
+
 
     // Each pixel of the result bitmap is represented by a block of 10x10 on the canvas
     const int screenWidth = 1480; // 1280 + 80. The draw canvas only takes up 1280 pixels in terms of width.

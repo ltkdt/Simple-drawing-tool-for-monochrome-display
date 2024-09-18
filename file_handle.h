@@ -13,11 +13,13 @@ std::string readFile();
 
 typedef std::vector<std::pair<int, int>> coordinateList;
 
-coordinateList MapCoordinateFromFile(std::string filename);
+void ReadByteToMap(std::array<int, 4> half_byte, int r_index, int c_index, int (&MatrixMap)[64][128] );
+
+void MapCoordinateFromFile(std::string filename, int(&MatrixMap)[64][128]);
 
 extern std::unordered_map<int, char> ToHexLetter;
 
-std::array<int, 4> DigitToByte(int num);
+std::array<int, 4> DigitToHalfByte(int num);
 
 extern std::unordered_map<char, int> HexLetterToInt; 
 

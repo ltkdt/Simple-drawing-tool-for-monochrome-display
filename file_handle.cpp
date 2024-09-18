@@ -20,24 +20,37 @@ std::unordered_map<char, int> HexLetterToInt = {
     {'f', 15}
 };
 
-std::array<int, 4> DigitToByte(int num){
+std::array<int, 4> DigitToHalfByte(int num){
     std::array <int,4> byte;
     for(int j = 3; j>=0; j--){
         int base = std::pow(2,j);
         if(num >= base){
             num -= base;
+            byte[3-j] = 1;
         }
-        byte[3-j] = (num >0) ? 1 : 0; 
+        else{
+            byte[3-j] = 0;
+        }    
     }
     return byte;
 }
 
-coordinateList MapCoordinateFromFile(std::string filename){
-    coordinateList output;
+void ReadByteToMap(std::array<int, 4> half_byte, int r_index, int c_index, int (&MatrixMap)[64][128] ){
+    for (int i = 0; i<4; i++){
+        if(half_byte[i] == 1){
+            MatrixMap[r_index][c_index*4 + i] = 1;
+        }
+    }
+}
+
+
+void MapCoordinateFromFile(std::string filename, int(&MatrixMap)[64][128]){
     std::string line;
     std::ifstream FileHandle(filename);
-    int i;
-    char byte[4];
+    int i, column, row;
+    column = 0;
+    row = 0;
+    std::array<int, 4> CurrentByte, CurrentByte2;
     while(getline(FileHandle, line)){
         /*
         std::stringstream liness(line);
@@ -46,20 +59,32 @@ coordinateList MapCoordinateFromFile(std::string filename){
             std::cout << token << '\n';
         }
         */
-        if(line[0]== '\t'){
+        if(line[0] == '\t'){
             for(i=3;i <line.length(); i+= 6){
                 // if the char is a number
                 int digit = line[i] -'0' ;
                 if(digit < 0 or digit > 9){
                     digit = HexLetterToInt[line[i]];
                 }
-                
+                CurrentByte = DigitToHalfByte(digit);
+
+                int digit2 = line[i] -'0' ;
+                if(digit2 < 0 or digit2 > 9){
+                    digit2 = HexLetterToInt[line[i]];
+                }
+                CurrentByte2 = DigitToHalfByte(digit2);
+
+                ReadByteToMap(CurrentByte,row,column, MatrixMap);
+                ReadByteToMap(CurrentByte2,row,column+1, MatrixMap);
+                column++;
             }
-            std::cout << '\n';
+            std::cout << row << " " << column << "\n";
         }
+
+        row++;
+        column = 0;
     }
     FileHandle.close();
-    return output;
 }
 
 std::unordered_map<int, char> ToHexLetter = {
