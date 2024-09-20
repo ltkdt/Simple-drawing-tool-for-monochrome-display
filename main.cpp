@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <array>
+#include <cmath>
 #include "file_handle.h"
 #include "logic_handle.h"
 
@@ -23,7 +24,7 @@ Press F12 or click the save button to generate code to bitmap.cpp. Copy the code
 // There are only 2 draw tools for this basic program: pen or eraser
 typedef enum DrawTool { PEN, ERASER } DrawTool;
 
-typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT } QuickDrawFeatures;
+typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT, DRAWCIRCLE } QuickDrawFeatures;
 
 typedef enum ProgramState { DRAWCANVAS, FILEMENU } ProgramState;
 
@@ -50,7 +51,7 @@ int matrix_map[Y_RESOLUTION][X_RESOLUTION];  // Matrix : Arr[row][column]
 struct Vector2Int{
     int x;
     int y;
-} previousMapClickedLine, previousMapClickedRect;
+} previousMapClickedLine, previousMapClickedRect, previousMapClickedCircle;
 
 /*
 
@@ -125,9 +126,10 @@ int main(void)
 
     previousMapClickedLine = {-1, -1};
     previousMapClickedRect = {-1, -1};
+    previousMapClickedCircle = {-1, -1};
 
     DrawTool CurrentDrawTool = PEN;
-    QuickDrawFeatures CurrentQuickDraw = DRAWLINE;
+    QuickDrawFeatures CurrentQuickDraw = DRAWCIRCLE;
     ProgramState CurrentProgramState = DRAWCANVAS;
 
     InitWindow(screenWidth, screenHeight, "Simple program to create byte array for monochrome screen by ltkdt");
@@ -197,6 +199,15 @@ int main(void)
 
                         previousMapClickedRect = (Vector2Int){position_map_x, position_map_y};
                     break;
+
+                    case DRAWCIRCLE:
+                        if ( !(previousMapClickedCircle.x == -1 && previousMapClickedCircle.y == -1) ){
+                            int r = ( (position_map_x - previousMapClickedCircle.x) * (position_map_x - previousMapClickedCircle.x) ) + ( (position_map_y - previousMapClickedCircle.y) * (position_map_y - previousMapClickedCircle.y) );
+                            r = std::round(std::sqrt(r));
+                            midpoint_circle(previousMapClickedCircle.x, previousMapClickedCircle.y, r, matrix_map);
+                            
+                        }
+                        previousMapClickedCircle = (Vector2Int){position_map_x, position_map_y};
                     default:
                         break;
                     }

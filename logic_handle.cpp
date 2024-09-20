@@ -163,3 +163,37 @@ void draw_rect(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
     draw_v_line(y1, y2+1, x1, matrix_map);
     draw_v_line(y1, y2+1, x2, matrix_map);
 }
+
+void drawPixelwithCheck(int x, int y, int(&matrix_map)[64][128]){
+    if (!( x < 0 || x > 127)){
+        if (!( y < 0 || y > 63)){
+            matrix_map[y][x] = 1;
+        }
+    }
+}
+
+void midpoint_circle(int center_x, int center_y, int r, int (&matrix_map)[64][128]){
+    // x, y is our starting point, which is on the top circle
+    int x = 0;
+    int y = -r;
+    // int dp = -r + 0.25; //dp: decision parameter
+    int dp = -4*r + 1;
+    for(x; x<-y; x++){
+        if (dp>0){
+            y++;
+            dp += 8*(x+y) + 4;
+        }
+        else{
+            dp += 8*x+4;
+        }
+
+        drawPixelwithCheck(center_x + x, center_y + y, matrix_map);
+        drawPixelwithCheck(center_x - x, center_y + y, matrix_map);
+        drawPixelwithCheck(center_x + x, center_y - y, matrix_map);
+        drawPixelwithCheck(center_x - x, center_y - y, matrix_map);
+        drawPixelwithCheck(center_x + y, center_y + x, matrix_map);
+        drawPixelwithCheck(center_x + y, center_y - x, matrix_map);
+        drawPixelwithCheck(center_x - y, center_y + x, matrix_map);
+        drawPixelwithCheck(center_x - y, center_y - x, matrix_map);
+    }
+}

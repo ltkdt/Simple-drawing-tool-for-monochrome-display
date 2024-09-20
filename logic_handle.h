@@ -17,3 +17,7 @@ void draw_line_bresenham_vertical(int x1, int y1, int x2, int y2, int (&matrix_m
 void draw_line(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]);
 
 void draw_rect(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]);
+
+void midpoint_circle(int center_x, int center_y, int r, int (&matrix_map)[64][128]);
+
+void drawPixelwithCheck(int x, int y, int(&matrix_map)[64][128]);
