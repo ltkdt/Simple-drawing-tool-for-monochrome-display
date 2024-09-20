@@ -24,7 +24,7 @@ Press F12 or click the save button to generate code to bitmap.cpp. Copy the code
 // There are only 2 draw tools for this basic program: pen or eraser
 typedef enum DrawTool { PEN, ERASER } DrawTool;
 
-typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT, DRAWCIRCLE } QuickDrawFeatures;
+typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT, DRAWCIRCLE, UNKNOWN } QuickDrawFeatures;
 
 typedef enum ProgramState { DRAWCANVAS, FILEMENU } ProgramState;
 
@@ -40,8 +40,12 @@ Rectangle ResetCanvasButton {300, 675, 200, 30};
 Rectangle InvertColorButton {520, 675, 200, 30};
 Rectangle SaveButton {740, 675, 400, 30};
 
-// In File Menu
+Rectangle LineButton {1340, 50, 130, 30};
+Rectangle RectButton {1340, 100, 130, 30};
+Rectangle CircleButton {1340, 150, 130, 30};
+Rectangle UnusedButton {1340, 200, 130, 30};
 
+// In File Menu
 Rectangle TextBoxFile {100, 100, 500, 100};
 
 //
@@ -110,14 +114,7 @@ std::string filename;
 
 int main(void)
 {
-    MapCoordinateFromFile("bitmap.cpp", matrix_map);
-    /*
-    std::array<int, 4> output = DigitToByte(15);
-    for(int i =0; i<4; i++){
-        std:: cout << output[i] << " ";
-    }
-    std::cout << '\n';
-    */
+    // MapCoordinateFromFile("bitmap.cpp", matrix_map);
 
 
     // Each pixel of the result bitmap is represented by a block of 10x10 on the canvas
@@ -129,7 +126,7 @@ int main(void)
     previousMapClickedCircle = {-1, -1};
 
     DrawTool CurrentDrawTool = PEN;
-    QuickDrawFeatures CurrentQuickDraw = DRAWCIRCLE;
+    QuickDrawFeatures CurrentQuickDraw = UNKNOWN;
     ProgramState CurrentProgramState = DRAWCANVAS;
 
     InitWindow(screenWidth, screenHeight, "Simple program to create byte array for monochrome screen by ltkdt");
@@ -147,11 +144,10 @@ int main(void)
                     
                     int mouse_x = CurrentPosition.x;
                     int mouse_y = CurrentPosition.y;
+
+                    // position map: converting from coordinate of the canvas to the coordinate on the position map
                     int position_map_x = GetPositionOfMap(mouse_x, BeginDrawCanvas.x);
                     int position_map_y = GetPositionOfMap(mouse_y, BeginDrawCanvas.y);
-                    
-                    // The line below is for debugging only
-                    // std::cout << position_map_x << " " << position_map_y << "\n";
 
                     switch (CurrentDrawTool)
                     {
@@ -170,6 +166,7 @@ int main(void)
                         break;
                     }
 
+                    // Special drawing tool including line, rect and circle drawing 
                     switch (CurrentQuickDraw)
                     {
                     case DRAWLINE:
@@ -208,6 +205,9 @@ int main(void)
                             
                         }
                         previousMapClickedCircle = (Vector2Int){position_map_x, position_map_y};
+                    break;
+                    case UNKNOWN:
+                        break;
                     default:
                         break;
                     }
@@ -232,6 +232,23 @@ int main(void)
             if ( (CheckCollisionPointRec(GetMousePosition(), SaveButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
                 WriteFile(matrix_map);
             }
+
+            if ( (CheckCollisionPointRec(GetMousePosition(), LineButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
+                CurrentQuickDraw = DRAWLINE;
+                previousMapClickedLine = {-1, -1};
+            }
+            if ( (CheckCollisionPointRec(GetMousePosition(), RectButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
+                CurrentQuickDraw = DRAWRECT;
+                previousMapClickedRect = {-1, -1};
+            }
+            if ( (CheckCollisionPointRec(GetMousePosition(), CircleButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
+                CurrentQuickDraw = DRAWCIRCLE;
+                previousMapClickedCircle = {-1, -1};
+            }
+            if ( (CheckCollisionPointRec(GetMousePosition(), UnusedButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
+                CurrentQuickDraw = UNKNOWN;
+            }
+            
 
             // The switch block below is for switching between drawing tools
             switch (CurrentDrawTool)
@@ -329,6 +346,17 @@ int main(void)
                 DrawRectangleRec(ResetCanvasButton, LIGHTGRAY);
                 DrawRectangleRec(InvertColorButton, LIGHTGRAY);
                 DrawRectangleRec(SaveButton, LIGHTGRAY);
+
+                //  Drawing features
+                DrawRectangleRec(LineButton, LIGHTGRAY);
+                DrawRectangleRec(RectButton, LIGHTGRAY);
+                DrawRectangleRec(CircleButton, LIGHTGRAY);
+                DrawRectangleRec(UnusedButton, LIGHTGRAY);
+
+                DrawText("Draw Line", 1350, 55, 20, BLACK);
+                DrawText("Draw Rect", 1350, 105, 20, BLACK);
+                DrawText("Draw Circle", 1350, 155, 20, BLACK);
+                DrawText("No tool", 1350, 205, 20, BLACK);
 
                 DrawText("Reset canvas", 315, 680, 25, BLACK);
                 DrawText("Invert color", 540, 680, 25, BLACK);

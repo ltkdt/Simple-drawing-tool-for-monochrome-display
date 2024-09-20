@@ -1,6 +1,8 @@
 #include "logic_handle.h"
 #include "raylib.h"
 #include <cmath>
+#include <vector>
+#include <utility>
 
 void swap_int(int &a, int&b){
     a=a+b;
@@ -41,8 +43,21 @@ void draw_v_line(int y1, int y2, int shared_x, int (&matrix_map)[64][128] ){
 }
 
 /*
-    This is the base algorithm ,it works when delta x and delta y are both positive
+    Implementation of Bresenham line algorithm below
 
+                        \       |       /
+                            \ 6 | 7 /
+                        5      \|/      8
+                    ------------|------------
+                        4      /|\      1
+                            /   |   \
+                        /   3   |  2    \
+
+    The commented is only for the first octant (delta x and delta y are both positive)
+
+*/
+
+/*
 
 void draw_line_bresenham(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128] ){
     int delta_x = x2 - x1;
@@ -67,17 +82,8 @@ void draw_line_bresenham(int x1, int y1, int x2, int y2, int (&matrix_map)[64][1
 
 */
 
-/*
-                        \       |       /
-                            \ 6 | 7 /
-                        5      \|/      8
-                    ------------|------------
-                        4      /|\      1
-                            /   |   \
-                        /   3   |  2    \
-*/
 
-// The algorithm above but it can handle negative slope
+// The algorithm above but now can handle 1,4,5,8th algorithm
 void draw_line_bresenham_horizontal(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128] ){
     int delta_x = x2 - x1;
 
@@ -107,6 +113,8 @@ void draw_line_bresenham_horizontal(int x1, int y1, int x2, int y2, int (&matrix
         }
     }
 }
+
+// 2,3,6 and 7th octant
 
 void draw_line_bresenham_vertical(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128] ){
     int delta_y = y2 - y1;
@@ -138,6 +146,8 @@ void draw_line_bresenham_vertical(int x1, int y1, int x2, int y2, int (&matrix_m
     }
 }
 
+// The complete line drawing function using bresenham line drawing algorithm
+
 void draw_line(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
     if ( std::abs(x2 -  x1) >= std::abs( y2 - y1 ) ){
         draw_line_bresenham_horizontal(x1, y1, x2, y2, matrix_map);
@@ -146,6 +156,8 @@ void draw_line(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
         draw_line_bresenham_vertical(x1, y1, x2, y2, matrix_map);
     }
 }
+
+// Draw Rectangle
 
 void draw_rect(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
     if (x1 > x2){
@@ -164,7 +176,9 @@ void draw_rect(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
     draw_v_line(y1, y2+1, x2, matrix_map);
 }
 
-void drawPixelwithCheck(int x, int y, int(&matrix_map)[64][128]){
+// Mark a position on the matrix map but check if its index is within the suitable range
+
+void draw_pixel_with_check(int x, int y, int(&matrix_map)[64][128]){
     if (!( x < 0 || x > 127)){
         if (!( y < 0 || y > 63)){
             matrix_map[y][x] = 1;
@@ -172,6 +186,8 @@ void drawPixelwithCheck(int x, int y, int(&matrix_map)[64][128]){
     }
 }
 
+// Midpoint circle algorithm 
+ 
 void midpoint_circle(int center_x, int center_y, int r, int (&matrix_map)[64][128]){
     // x, y is our starting point, which is on the top circle
     int x = 0;
@@ -187,13 +203,33 @@ void midpoint_circle(int center_x, int center_y, int r, int (&matrix_map)[64][12
             dp += 8*x+4;
         }
 
-        drawPixelwithCheck(center_x + x, center_y + y, matrix_map);
-        drawPixelwithCheck(center_x - x, center_y + y, matrix_map);
-        drawPixelwithCheck(center_x + x, center_y - y, matrix_map);
-        drawPixelwithCheck(center_x - x, center_y - y, matrix_map);
-        drawPixelwithCheck(center_x + y, center_y + x, matrix_map);
-        drawPixelwithCheck(center_x + y, center_y - x, matrix_map);
-        drawPixelwithCheck(center_x - y, center_y + x, matrix_map);
-        drawPixelwithCheck(center_x - y, center_y - x, matrix_map);
+        draw_pixel_with_check(center_x + x, center_y + y, matrix_map);
+        draw_pixel_with_check(center_x - x, center_y + y, matrix_map);
+        draw_pixel_with_check(center_x + x, center_y - y, matrix_map);
+        draw_pixel_with_check(center_x - x, center_y - y, matrix_map);
+        draw_pixel_with_check(center_x + y, center_y + x, matrix_map);
+        draw_pixel_with_check(center_x + y, center_y - x, matrix_map);
+        draw_pixel_with_check(center_x - y, center_y + x, matrix_map);
+        draw_pixel_with_check(center_x - y, center_y - x, matrix_map);
+    }
+}
+
+std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int matrix_map[64][128]){
+    int x_initial = x1;
+    int y_initial = y1;
+    std::vector<std::pair<int,int>> scan_result;
+    for(y1; y1<=y2; y1++){
+        for(x1; x1 <= x2; x1++){
+            if (matrix_map[y1][x1] == 1){
+                scan_result.push_back(std::make_pair(x1 - x_initial, y1 - y_initial));
+            }
+        }
+    }
+    return scan_result;
+}
+
+void paste_scan(int x, int y, std::vector<std::pair<int,int>> scan_result, int (&matrix_map)[64][128]){
+    for(int i = 0; i < scan_result.size(); i++){
+        draw_pixel_with_check( x + scan_result[i].second, y + scan_result[i].first, matrix_map);
     }
 }

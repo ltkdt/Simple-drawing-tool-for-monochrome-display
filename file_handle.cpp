@@ -2,14 +2,10 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
-#include <utility>
-#include <vector>
 #include <sstream>
 #include <cmath>
 #include <array>
 #include "file_handle.h"
-
-typedef std::vector<std::pair<int, int>> coordinateList;
 
 std::unordered_map<char, int> HexLetterToInt = {
     {'a', 10},
