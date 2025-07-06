@@ -24,7 +24,7 @@ Press F12 or click the save button to generate code to bitmap.cpp. Copy the code
 // There are only 2 draw tools for this basic program: pen or eraser
 typedef enum DrawTool { PEN, ERASER } DrawTool;
 
-typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT, DRAWCIRCLE, UNKNOWN } QuickDrawFeatures;
+typedef enum QuickDrawFeatures { DRAWLINE, DRAWRECT, DRAWCIRCLE, UNUSED, COPY, PASTE } QuickDrawFeatures;
 
 typedef enum ProgramState { DRAWCANVAS, FILEMENU } ProgramState;
 
@@ -43,19 +43,21 @@ Rectangle SaveButton {740, 675, 400, 30};
 Rectangle LineButton {1340, 50, 130, 30};
 Rectangle RectButton {1340, 100, 130, 30};
 Rectangle CircleButton {1340, 150, 130, 30};
-Rectangle UnusedButton {1340, 200, 130, 30};
+Rectangle CopyButton {1340, 200, 130, 30};
+Rectangle PasteButton {1340, 250, 130, 30};
 
 // In File Menu
-Rectangle TextBoxFile {100, 100, 500, 100};
+Rectangle TextBoxFile {300, 200, 550, 30};
 
-//
+// Read file button
+Rectangle ReadFileButton {650, 300, 150, 30};
 
 int matrix_map[Y_RESOLUTION][X_RESOLUTION];  // Matrix : Arr[row][column]
 
 struct Vector2Int{
     int x;
     int y;
-} previousMapClickedLine, previousMapClickedRect, previousMapClickedCircle;
+} previousMapClickedLine, previousMapClickedRect, previousMapClickedCircle, previousMapScanned;
 
 /*
 
@@ -110,7 +112,8 @@ void invert_matrix_map(){
 }
 
 std::string filename;
-
+int filename_char_count = 0;
+std::vector<std::pair<int, int>> recent_scan = {};
 
 int main(void)
 {
@@ -124,17 +127,25 @@ int main(void)
     previousMapClickedLine = {-1, -1};
     previousMapClickedRect = {-1, -1};
     previousMapClickedCircle = {-1, -1};
+    previousMapScanned = {-1, -1};
 
     DrawTool CurrentDrawTool = PEN;
-    QuickDrawFeatures CurrentQuickDraw = UNKNOWN;
+    QuickDrawFeatures CurrentQuickDraw = UNUSED;
     ProgramState CurrentProgramState = DRAWCANVAS;
 
     InitWindow(screenWidth, screenHeight, "Simple program to create byte array for monochrome screen by ltkdt");
 
-    SetTargetFPS(60);              
+    SetTargetFPS(60);            
     
     while (!WindowShouldClose())    
     {
+        /*
+        if( !recent_scan.empty() ){
+            for(int i = 0; i < recent_scan.size(); i++){
+                                std::cout << recent_scan[i].first << " " << recent_scan[i].second << std::endl;
+                            }
+        }
+        */
         // Check if you are clicking or pressing down on the canvas. If you are, then it will take the postition of your mouse and translate to canvas position.
         switch (CurrentProgramState)
         {
@@ -154,8 +165,9 @@ int main(void)
                     case PEN:
                         // Using draw tool, blocks that you click on are white. (The default is black)
                         //matrix_map[position_map_y][position_map_x] = 1;
-
-                        draw_with_pen_size(matrix_map, position_map_y, position_map_x, 1 );
+                        if(!(CurrentQuickDraw == COPY || CurrentQuickDraw == PASTE) ){
+                            draw_with_pen_size(matrix_map, position_map_y, position_map_x, 1 );
+                        }
                     
                         break;
                     case ERASER:
@@ -190,8 +202,8 @@ int main(void)
                     
                     case DRAWRECT:
                         if ( !(previousMapClickedRect.x == -1 && previousMapClickedRect.y == -1) ){
+                            // std::cout << "Checking input:       " << previousMapClickedRect.x << " " << previousMapClickedRect.y << " " << position_map_x << " " << position_map_y << std::endl;
                             draw_rect(previousMapClickedRect.x, previousMapClickedRect.y, position_map_x, position_map_y, matrix_map);
-                            std::cout << "called here \n";
                         }
 
                         previousMapClickedRect = (Vector2Int){position_map_x, position_map_y};
@@ -206,8 +218,23 @@ int main(void)
                         }
                         previousMapClickedCircle = (Vector2Int){position_map_x, position_map_y};
                     break;
-                    case UNKNOWN:
+
+                    case COPY:
+                        if ( !(previousMapScanned.x == -1 && previousMapScanned.y == -1)){
+                            std::cout << "Checking input:       " << previousMapScanned.x << " " << previousMapScanned.y << " " << position_map_x << " " << position_map_y << std::endl;
+                            recent_scan = scan(previousMapScanned.x, previousMapScanned.y, position_map_x, position_map_y, matrix_map);
+                            
+                        }
+                        previousMapScanned = (Vector2Int){position_map_x, position_map_y};
+                    break;
+
+                    case PASTE:
+                        paste_scan(position_map_x, position_map_y, recent_scan, matrix_map);
+                    break;
+                    
+                    case UNUSED:
                         break;
+                    
                     default:
                         break;
                     }
@@ -230,27 +257,31 @@ int main(void)
             }
 
             if ( (CheckCollisionPointRec(GetMousePosition(), SaveButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
-                WriteFile(matrix_map);
+                filename_char_count == 0 ? WriteFile("bitmap.cpp", matrix_map) : WriteFile(filename.append(".cpp"), matrix_map) ;
             }
 
-            if ( (CheckCollisionPointRec(GetMousePosition(), LineButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
-                CurrentQuickDraw = DRAWLINE;
+            if ( (CheckCollisionPointRec(GetMousePosition(), LineButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ){
+                CurrentQuickDraw = (CurrentQuickDraw == DRAWLINE) ? UNUSED : DRAWLINE;
                 previousMapClickedLine = {-1, -1};
             }
-            if ( (CheckCollisionPointRec(GetMousePosition(), RectButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
-                CurrentQuickDraw = DRAWRECT;
+            if ( (CheckCollisionPointRec(GetMousePosition(), RectButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ){
+                CurrentQuickDraw = (CurrentQuickDraw == DRAWRECT) ? UNUSED : DRAWRECT;
                 previousMapClickedRect = {-1, -1};
             }
-            if ( (CheckCollisionPointRec(GetMousePosition(), CircleButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
-                CurrentQuickDraw = DRAWCIRCLE;
+            if ( (CheckCollisionPointRec(GetMousePosition(), CircleButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ){
+                CurrentQuickDraw = (CurrentQuickDraw == DRAWCIRCLE) ? UNUSED : DRAWCIRCLE;
                 previousMapClickedCircle = {-1, -1};
             }
-            if ( (CheckCollisionPointRec(GetMousePosition(), UnusedButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
-                CurrentQuickDraw = UNKNOWN;
+            if ( (CheckCollisionPointRec(GetMousePosition(), CopyButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ){
+                CurrentQuickDraw = (CurrentQuickDraw == COPY) ? UNUSED : COPY; 
+                previousMapScanned = {-1, -1};
+            }
+            if ( (CheckCollisionPointRec(GetMousePosition(), PasteButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ){
+                CurrentQuickDraw = (CurrentQuickDraw == PASTE) ? UNUSED : PASTE; 
             }
             
 
-            // The switch block below is for switching between drawing tools
+            // The switch block below is for switching between drawing tools: PEN / ERASER 
             switch (CurrentDrawTool)
             {
                 case PEN:
@@ -266,9 +297,15 @@ int main(void)
                 default: break;
             }
         break;
+
         case (FILEMENU):
             if ( IsKeyPressed(KEY_F1) ){
                 CurrentProgramState = DRAWCANVAS;
+            }
+            if (CheckCollisionPointRec(GetMousePosition(), ReadFileButton)){
+                if(filename_char_count > 0){
+                    MapCoordinateFromFile(filename.append(".cpp"), matrix_map);
+                };
             }
             if ( CheckCollisionPointRec(GetMousePosition(), TextBoxFile)){
                 SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -280,9 +317,12 @@ int main(void)
                 while (key > 0)
                 {
                     // NOTE: Only allow keys in range [32..125]
-                    if ((key >= 32) && (key <= 125) )
+                    if ((key >= 32) && (key <= 125) && filename_char_count <= 40 )
                     {
                         filename.push_back(char(key));
+                        filename_char_count++;
+
+                        std::cout << filename_char_count << std::endl;
                         break;
                     }
 
@@ -348,15 +388,16 @@ int main(void)
                 DrawRectangleRec(SaveButton, LIGHTGRAY);
 
                 //  Drawing features
-                DrawRectangleRec(LineButton, LIGHTGRAY);
-                DrawRectangleRec(RectButton, LIGHTGRAY);
-                DrawRectangleRec(CircleButton, LIGHTGRAY);
-                DrawRectangleRec(UnusedButton, LIGHTGRAY);
+                DrawRectangleRec(LineButton, (CurrentQuickDraw == DRAWLINE) ? GRAY : LIGHTGRAY) ;
+                DrawRectangleRec(RectButton, (CurrentQuickDraw == DRAWRECT) ? GRAY : LIGHTGRAY) ;
+                DrawRectangleRec(CircleButton, (CurrentQuickDraw == DRAWCIRCLE) ? GRAY : LIGHTGRAY);
+                DrawRectangleRec(CopyButton, (CurrentQuickDraw == COPY) ? GRAY : LIGHTGRAY);
+                DrawRectangleRec(PasteButton, (CurrentQuickDraw == PASTE) ? GRAY : LIGHTGRAY);
 
                 DrawText("Draw Line", 1350, 55, 20, BLACK);
                 DrawText("Draw Rect", 1350, 105, 20, BLACK);
                 DrawText("Draw Circle", 1350, 155, 20, BLACK);
-                DrawText("No tool", 1350, 205, 20, BLACK);
+               
 
                 DrawText("Reset canvas", 315, 680, 25, BLACK);
                 DrawText("Invert color", 540, 680, 25, BLACK);
@@ -378,7 +419,14 @@ int main(void)
             break;
             case FILEMENU:
                 DrawRectangleRec(TextBoxFile, LIGHTGRAY);
-                DrawText(filename.c_str(), 110 , 100, 25, BLACK);
+                DrawText("Write the name of the file you want to save or read here, no need to end with \".cpp\"", 100, 100, 30, BLACK);
+                DrawText("Name:", TextBoxFile.x - 100, TextBoxFile.y, 30, BLACK);
+                DrawText("Read the file if it already exists:", 100, 300, 30, BLACK);
+                DrawText(filename.c_str(), TextBoxFile.x + 10, TextBoxFile.y + 5 , 25, BLACK);
+
+                DrawRectangleRec(ReadFileButton, LIGHTGRAY);
+                DrawText("Read file", ReadFileButton.x + 15, ReadFileButton.y +5 , 25, BLACK);
+                
                 break;
             default:
                 break;

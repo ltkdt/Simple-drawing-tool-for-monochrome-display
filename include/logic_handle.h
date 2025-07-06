@@ -31,6 +31,8 @@ void draw_pixel_with_check(int x, int y, int(&matrix_map)[64][128]);
 
 // Copying - paste
 
-std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int matrix_map[64][128]);
+//std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int matrix_map[64][128]);
 
 void paste_scan(int x, int y, std::vector<std::pair<int,int>> scan_result, int (&matrix_map)[64][128]);
+
+std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]);

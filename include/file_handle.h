@@ -24,4 +24,4 @@ void ReadByteToMap(std::array<int, 4> half_byte, int r_index, int c_index, int (
 
 void MapCoordinateFromFile(std::string filename, int(&MatrixMap)[64][128]);
 
-void WriteFile(int matrix_map[64][128]);
+void WriteFile(std::string filename, int matrix_map[64][128]);

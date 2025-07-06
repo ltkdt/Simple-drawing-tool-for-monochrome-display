@@ -1,1 +1,0 @@
-g++ main.cpp file_handle.cpp logic_handle.cpp -o sdtfod -lraylib -lGL -lm -lpthread -ldl -lrt -lX11

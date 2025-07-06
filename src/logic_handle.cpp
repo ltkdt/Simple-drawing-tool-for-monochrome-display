@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include <utility>
+#include <iostream>
 
 void swap_int(int &a, int&b){
     a=a+b;
@@ -214,13 +215,22 @@ void midpoint_circle(int center_x, int center_y, int r, int (&matrix_map)[64][12
     }
 }
 
-std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int matrix_map[64][128]){
+std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
     int x_initial = x1;
     int y_initial = y1;
+    if( x1 > x2 ){
+        swap_int(x1,x2);
+    }
+    if( y1 > y2 ){
+        swap_int(y1, y2);
+    }
+    // std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
     std::vector<std::pair<int,int>> scan_result;
     for(y1; y1<=y2; y1++){
         for(x1; x1 <= x2; x1++){
+            std::cout << matrix_map[y1][x1] << std::endl;
             if (matrix_map[y1][x1] == 1){
+                std::cout << "called" << std::endl;
                 scan_result.push_back(std::make_pair(x1 - x_initial, y1 - y_initial));
             }
         }

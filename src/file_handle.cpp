@@ -143,8 +143,8 @@ Example:
 */
 
 
-void WriteFile(int matrix_map[64][128]){
-    std::ofstream FileHandle("bitmap.cpp");
+void WriteFile(std::string filename, int matrix_map[64][128]){
+    std::ofstream FileHandle(filename);
 
     FileHandle << "static const unsigned char myBitmap [] { " << std::endl;
      for(int i = 0; i < 64; i++){
