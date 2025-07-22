@@ -1,7 +1,7 @@
-# Simple Program to draw image as byte array for OLED Arduino
+# DTMD - Drawing Tool for Monochrome Display 
 
-This is my Raylib project to draw bitmap that is meant to be displayed on an OLED screen with the resolution of 128x64 pixels.
-U8G2 or Adafruit SSD1306 / SH110X to read the bitmap then display it to the screen
+This is my Raylib project to draw bitmap as byte array that is meant to be displayed on monochrome display using a library such as
+U8G2 or Adafruit SSD1306 / SH110X to read the bitmap as byte array then display it to the screen
 
 This project is still in progress, but for now it has just enough features for my use. 
 
