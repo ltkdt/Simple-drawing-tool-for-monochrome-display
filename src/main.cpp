@@ -139,13 +139,7 @@ int main(void)
     
     while (!WindowShouldClose())    
     {
-        /*
-        if( !recent_scan.empty() ){
-            for(int i = 0; i < recent_scan.size(); i++){
-                                std::cout << recent_scan[i].first << " " << recent_scan[i].second << std::endl;
-                            }
-        }
-        */
+
         // Check if you are clicking or pressing down on the canvas. If you are, then it will take the postition of your mouse and translate to canvas position.
         switch (CurrentProgramState)
         {
@@ -202,7 +196,6 @@ int main(void)
                     
                     case DRAWRECT:
                         if ( !(previousMapClickedRect.x == -1 && previousMapClickedRect.y == -1) ){
-                            std::cout << "Checking input:       " << previousMapClickedRect.x << " " << previousMapClickedRect.y << " " << position_map_x << " " << position_map_y << std::endl;
                             draw_rect(previousMapClickedRect.x, previousMapClickedRect.y, position_map_x, position_map_y, matrix_map);
                         }
 

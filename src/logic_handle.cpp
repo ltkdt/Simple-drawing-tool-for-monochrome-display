@@ -228,7 +228,6 @@ std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int (&matri
     std::vector<std::pair<int,int>> scan_result;
     for(y = y1; y <=y2 ; y++){
         for(x = x1; x <= x2; x++){
-            std::cout << matrix_map[y][x] << " ";
             if (matrix_map[y][x]){
                 scan_result.push_back(std::make_pair(x - x1, y - y1));
             }
