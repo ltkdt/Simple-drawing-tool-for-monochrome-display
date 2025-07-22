@@ -48,13 +48,7 @@ void MapCoordinateFromFile(std::string filename, int(&MatrixMap)[64][128]){
     row = 0;
     std::array<int, 4> CurrentByte, CurrentByte2;
     while(getline(FileHandle, line)){
-        /*
-        std::stringstream liness(line);
-        std::string value;
-        while(std::getline(liness, value, '\t')) {
-            std::cout << token << '\n';
-        }
-        */
+
         if(line[0] == '\t'){
             for(i=3;i <line.length(); i+= 6){
                 // if the char is a number
@@ -106,7 +100,7 @@ std::string readFile(){
     std::string appendstring(" \n");
 
     // Read from the text file
-    std::ifstream FileHandle("object.cpp");
+    std::ifstream FileHandle("./IO/object.cpp");
 
     // Use a while loop together with the getline() function to read the file line by line
     while (getline (FileHandle, fileContent)) {

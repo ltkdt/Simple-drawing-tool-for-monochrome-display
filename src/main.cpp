@@ -133,7 +133,7 @@ int main(void)
     QuickDrawFeatures CurrentQuickDraw = UNUSED;
     ProgramState CurrentProgramState = DRAWCANVAS;
 
-    InitWindow(screenWidth, screenHeight, "Simple program to create byte array for monochrome screen by ltkdt");
+    InitWindow(screenWidth, screenHeight, "DTMD");
 
     SetTargetFPS(60);            
     
@@ -202,7 +202,7 @@ int main(void)
                     
                     case DRAWRECT:
                         if ( !(previousMapClickedRect.x == -1 && previousMapClickedRect.y == -1) ){
-                            // std::cout << "Checking input:       " << previousMapClickedRect.x << " " << previousMapClickedRect.y << " " << position_map_x << " " << position_map_y << std::endl;
+                            std::cout << "Checking input:       " << previousMapClickedRect.x << " " << previousMapClickedRect.y << " " << position_map_x << " " << position_map_y << std::endl;
                             draw_rect(previousMapClickedRect.x, previousMapClickedRect.y, position_map_x, position_map_y, matrix_map);
                         }
 
@@ -220,8 +220,10 @@ int main(void)
                     break;
 
                     case COPY:
-                        if ( !(previousMapScanned.x == -1 && previousMapScanned.y == -1)){
+                        if ( (!(previousMapScanned.x == -1 && previousMapScanned.y == -1)) && (previousMapScanned.x != position_map_x && previousMapScanned.y != position_map_y) ){
                             std::cout << "Checking input:       " << previousMapScanned.x << " " << previousMapScanned.y << " " << position_map_x << " " << position_map_y << std::endl;
+                            
+                            
                             recent_scan = scan(previousMapScanned.x, previousMapScanned.y, position_map_x, position_map_y, matrix_map);
                             
                         }
@@ -257,7 +259,7 @@ int main(void)
             }
 
             if ( (CheckCollisionPointRec(GetMousePosition(), SaveButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_F2) ){
-                filename_char_count == 0 ? WriteFile("bitmap.cpp", matrix_map) : WriteFile(filename.append(".cpp"), matrix_map) ;
+                filename_char_count == 0 ? WriteFile("bitmap.cpp", matrix_map) : WriteFile(filename, matrix_map) ;
             }
 
             if ( (CheckCollisionPointRec(GetMousePosition(), LineButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ){
@@ -304,7 +306,7 @@ int main(void)
             }
             if (CheckCollisionPointRec(GetMousePosition(), ReadFileButton)){
                 if(filename_char_count > 0){
-                    MapCoordinateFromFile(filename.append(".cpp"), matrix_map);
+                    MapCoordinateFromFile(filename, matrix_map);
                 };
             }
             if ( CheckCollisionPointRec(GetMousePosition(), TextBoxFile)){
@@ -322,7 +324,7 @@ int main(void)
                         filename.push_back(char(key));
                         filename_char_count++;
 
-                        std::cout << filename_char_count << std::endl;
+                        //std::cout << filename_char_count << std::endl;
                         break;
                     }
 
@@ -397,6 +399,8 @@ int main(void)
                 DrawText("Draw Line", 1350, 55, 20, BLACK);
                 DrawText("Draw Rect", 1350, 105, 20, BLACK);
                 DrawText("Draw Circle", 1350, 155, 20, BLACK);
+                DrawText("Copy", 1350, 205, 20, BLACK);
+                DrawText("Paste", 1350, 255, 20, BLACK);
                
 
                 DrawText("Reset canvas", 315, 680, 25, BLACK);
@@ -419,7 +423,7 @@ int main(void)
             break;
             case FILEMENU:
                 DrawRectangleRec(TextBoxFile, LIGHTGRAY);
-                DrawText("Write the name of the file you want to save or read here, no need to end with \".cpp\"", 100, 100, 30, BLACK);
+                DrawText("Write the path of the file you want to save or read here", 100, 100, 30, BLACK);
                 DrawText("Name:", TextBoxFile.x - 100, TextBoxFile.y, 30, BLACK);
                 DrawText("Read the file if it already exists:", 100, 300, 30, BLACK);
                 DrawText(filename.c_str(), TextBoxFile.x + 10, TextBoxFile.y + 5 , 25, BLACK);

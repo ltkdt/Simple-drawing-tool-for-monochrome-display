@@ -13,7 +13,5 @@ For now you can:
 
 Run `bash build.bash` to run the project. This repo assumes you know how to setup Raylib. If not, search for it since this library is very well-documented
 
-Below is a demo screenshot:
 
-![demo](./demo.png)
 

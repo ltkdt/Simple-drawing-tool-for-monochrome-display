@@ -216,30 +216,30 @@ void midpoint_circle(int center_x, int center_y, int r, int (&matrix_map)[64][12
 }
 
 std::vector<std::pair<int,int>> scan(int x1, int y1, int x2, int y2, int (&matrix_map)[64][128]){
-    int x_initial = x1;
-    int y_initial = y1;
+    int x, y;
+    
     if( x1 > x2 ){
         swap_int(x1,x2);
     }
     if( y1 > y2 ){
         swap_int(y1, y2);
     }
-    // std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
+    
     std::vector<std::pair<int,int>> scan_result;
-    for(y1; y1<=y2; y1++){
-        for(x1; x1 <= x2; x1++){
-            std::cout << matrix_map[y1][x1] << std::endl;
-            if (matrix_map[y1][x1] == 1){
-                std::cout << "called" << std::endl;
-                scan_result.push_back(std::make_pair(x1 - x_initial, y1 - y_initial));
+    for(y = y1; y <=y2 ; y++){
+        for(x = x1; x <= x2; x++){
+            std::cout << matrix_map[y][x] << " ";
+            if (matrix_map[y][x]){
+                scan_result.push_back(std::make_pair(x - x1, y - y1));
             }
         }
+        std::cout << "\n";
     }
     return scan_result;
 }
 
 void paste_scan(int x, int y, std::vector<std::pair<int,int>> scan_result, int (&matrix_map)[64][128]){
     for(int i = 0; i < scan_result.size(); i++){
-        draw_pixel_with_check( x + scan_result[i].second, y + scan_result[i].first, matrix_map);
+        draw_pixel_with_check( x + scan_result[i].first, y + scan_result[i].second, matrix_map);
     }
 }
